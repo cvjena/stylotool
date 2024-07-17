@@ -1,0 +1,6 @@
+{
+    "de": {
+        "language name": "German",
+        "spacy model": "de_core_news_sm"
+    }
+}
