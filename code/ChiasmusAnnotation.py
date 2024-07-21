@@ -1,4 +1,5 @@
 from TextObject import TextObject
+import numpy as np
 
 """
 This class is used to find chiasmus candidates in a text.
@@ -16,6 +17,8 @@ class ChiasmusAnnotation:
         self.candidates = []
         self.blacklist = []
         self.whitelist = []
+        self.neglist = []
+        self.poslist = []
 
 
     """
@@ -107,8 +110,239 @@ class ChiasmusAnnotation:
         dep_main = [dep[i] for i in range(candidate.A, candidate.A_+1)]
         vectors_main = [vectors[i] for i in range(candidate.A, candidate.A_+1)]
 
-        candidate.score = 0
+
+    def get_features(self, candidate):
         pass
+
+    def get_dubremetz_features(self, candidate):
+
+        tokens = self.text.tokens
+        lemmas = self.text.lemmas
+        pos = self.text.pos
+        dep = self.text.dep
+        vectors = self.text.vectors
+
+        context_start = candidate.A - 5
+        context_end = candidate.A_ + 5
+
+        tokens_main = [tokens[i] for i in range(candidate.A, candidate.A_+1)]
+        lemmas_main = [lemmas[i] for i in range(candidate.A, candidate.A_+1)]
+        pos_main = [pos[i] for i in range(candidate.A, candidate.A_+1)]
+        dep_main = [dep[i] for i in range(candidate.A, candidate.A_+1)]
+        vectors_main = [vectors[i] for i in range(candidate.A, candidate.A_+1)]
+
+        neglist = self.neglist
+        poslist = self.poslist
+
+        hardp_list = ['.', '(', ')', "[", "]"] 
+        softp_list = [',', ';']
+
+        features = []
+
+         # Basic
+
+        num_punct = 0
+        for h in hardp_list:
+            if h in tokens[ candidate.ids.ids[0]+1 : candidate.ids[1] ]: num_punct+=1
+            if h in tokens[ candidate.ids.ids[2]+1 : candidate.ids[3] ]: num_punct+=1
+        features.append(num_punct)
+
+        num_punct = 0
+        for h in hardp_list:
+            if h in tokens[ candidate.ids[0]+1 : candidate.ids[1] ]: num_punct+=1
+            if h in tokens[ candidate.ids[2]+1 : candidate.ids[3] ]: num_punct+=1
+        features.append(num_punct)
+
+        num_punct = 0
+        for h in hardp_list:
+            if h in tokens[ candidate.ids[1]+1 : candidate.ids[2] ]: num_punct+=1
+        features.append(num_punct)
+
+        rep_a1 = -1
+        if lemmas[candidate.ids[0]] == lemmas[candidate.ids[3]]:
+            rep_a1 -= 1
+        rep_a1 += lemmas.count(lemmas[candidate.ids[0]])
+        features.append(rep_a1)
+
+        rep_b1 = -1
+        if lemmas[candidate.ids[1]] == lemmas[candidate.ids[2]]:
+            rep_b1 -= 1
+        rep_b1 += lemmas.count(lemmas[candidate.ids[1]])
+        features.append(rep_b1)
+
+        rep_b2 = -1
+        if lemmas[candidate.ids[1]] == lemmas[candidate.ids[2]]:
+            rep_b2 -= 1
+        rep_b2 += lemmas.count(lemmas[candidate.ids[2]])
+        features.append(rep_b2)
+
+        rep_a2 = -1
+        if lemmas[candidate.ids[0]] == lemmas[candidate.ids[3]]:
+            rep_a2 -= 1
+        rep_a2 += lemmas.count(lemmas[candidate.ids[3]])
+        features.append(rep_b2)
+
+        # Size
+
+        diff_size = abs((candidate.ids[1]-candidate.ids[0]) - (candidate.ids[3]-candidate.ids[2]))
+        features.append(diff_size)
+
+        toks_in_bc = candidate.ids[3]-candidate.ids[1]
+        features.append(toks_in_bc)
+
+        # Similarity
+
+        exact_match = ([" ".join(tokens[candidate.ids[0]+1 : candidate.ids[1]])] == [" ".join(tokens[candidate.ids[2]+1 : candidate.ids[3]])])
+        features.append(exact_match)
+
+        same_tok = 0
+        for l in lemmas[candidate.ids[0]+1 : candidate.ids[1]]:
+            if l in lemmas[candidate.ids[2]+1 : candidate.ids[3]]: same_tok += 1
+        features.append(same_tok)
+
+        sim_score = same_tok / (candidate.ids[1]-candidate.ids[0])
+        features.append(sim_score)
+
+        num_bigrams = 0
+        t1 = " ".join(tokens[candidate.ids[0]+1 : candidate.ids[1]])
+        t2 = " ".join(tokens[candidate.ids[2]+1 : candidate.ids[3]])
+        s1 = set()
+        s2 = set()
+        for t in range(len(t1)-1):
+            bigram = t1[t:t+2]
+            s1.add(bigram)
+        for t in range(len(t2)-1):
+            bigram = t2[t:t+2]
+            s2.add(bigram)
+        for b in s1:
+            if b in s2: num_bigrams += 1
+        bigrams_normed = (num_bigrams/max(len(s1)+1, len(s2)+1))
+        features.append(bigrams_normed)
+
+        num_trigrams = 0
+        t1 = " ".join(tokens[candidate.ids[0]+1 : candidate.ids[1]])
+        t2 = " ".join(tokens[candidate.ids[2]+1 : candidate.ids[3]])
+        s1 = set()
+        s2 = set()
+        for t in range(len(t1)-2):
+            trigram = t1[t:t+3]
+            s1.add(trigram)
+        for t in range(len(t2)-2):
+            trigram = t2[t:t+3]
+            s2.add(trigram)
+        for t in s1:
+            if t in s2: num_trigrams += 1
+        trigrams_normed = (num_trigrams/max(len(s1)+1, len(s2)+1))
+        features.append(trigrams_normed)
+
+        same_cont = 0
+        t1 = set(tokens[candidate.ids[0]+1:candidate.ids[1]])
+        t2 = set(tokens[candidate.ids[2]+1:candidate.ids[3]])
+        for t in t1:
+            if t in t2: same_cont += 1
+        features.append(same_cont)
+
+        # Lexical clues
+
+        conj = 0
+        for c in conjlist:
+            if c in tokens[candidate.ids[1]+1:candidate.ids[2]]+lemmas[candidate.ids[1]+1:candidate.ids[2]]:
+                conj = 1
+        features.append(conj)
+
+
+        neg = 0
+        for n in neglist:
+            if n in tokens[candidate.ids[1]+1:candidate.ids[2]]+lemmas[candidate.ids[1]+1:candidate.ids[2]]:
+                neg = 1
+        features.append(neg)
+
+
+        # Dependency score
+
+        if dep[candidate.ids[1]] == dep[candidate.ids[3]]:
+            features.append(1)  
+        else: 
+            features.append(0)
+
+        if dep[candidate.ids[0]] == dep[candidate.ids[2]]:
+            features.append(1)  
+        else: 
+            features.append(0)
+
+        if dep[candidate.ids[1]] == dep[candidate.ids[2]]:
+            features.append(1)  
+        else: 
+            features.append(0)
+
+        if dep[candidate.ids[0]] == dep[candidate.ids[3]]:
+            features.append(1)  
+        else: 
+            features.append(0)
+
+        features = np.array(features)
+        return features
+
+    def get_lexical_features(self, candidate):
+        tokens = self.text.tokens
+        lemmas = self.text.lemmas
+        pos = self.text.pos
+        dep = self.text.dep
+        vectors = self.text.vectors
+
+        context_start = candidate.A - 5
+        context_end = candidate.A_ + 5
+
+        tokens_main = [tokens[i] for i in range(candidate.A, candidate.A_+1)]
+        lemmas_main = [lemmas[i] for i in range(candidate.A, candidate.A_+1)]
+        pos_main = [pos[i] for i in range(candidate.A, candidate.A_+1)]
+        dep_main = [dep[i] for i in range(candidate.A, candidate.A_+1)]
+        vectors_main = [vectors[i] for i in range(candidate.A, candidate.A_+1)]
+
+        neglist = self.neglist
+        poslist = self.poslist
+
+        features = []
+        
+        for i in range(len(tokens_main)):
+            for j in range(i+1, len(tokens_main)):
+                if lemmas_main[i] == lemmas_main[j]:
+                    features.append(1)
+                else:
+                    features.append(0)
+
+        features = np.array(features)
+        return features
+
+    def get_semantic_features(self, candidate):
+        tokens = self.text.tokens
+        lemmas = self.text.lemmas
+        pos = self.text.pos
+        dep = self.text.dep
+        vectors = self.text.vectors
+
+        context_start = candidate.A - 5
+        context_end = candidate.A_ + 5
+
+        tokens_main = [tokens[i] for i in range(candidate.A, candidate.A_+1)]
+        lemmas_main = [lemmas[i] for i in range(candidate.A, candidate.A_+1)]
+        pos_main = [pos[i] for i in range(candidate.A, candidate.A_+1)]
+        dep_main = [dep[i] for i in range(candidate.A, candidate.A_+1)]
+        vectors_main = [vectors[i] for i in range(candidate.A, candidate.A_+1)]
+
+
+        features = []
+        for i in range(len(vectors_main)):
+            for j in range(i+1, len(vectors_main)):
+                features.append(cosine_similarity(vectors_main[i], vectors_main[j]))
+
+        features = np.array(features)
+        return features
+
+
+
+def cosine_similarity(vec1, vec2):
+    return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
 
 
 class ChiasmusCandidate:
