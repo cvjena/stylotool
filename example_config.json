@@ -1,0 +1,11 @@
+{
+    "language": "de",
+    "annotations": {
+        "chiasmus": {
+            "window_size": 30,
+            "allowlist": ["NOUN", "VERB", "ADJ", "ADV"],
+            "denylist": [],
+            "model": "../models/chiasmus_de.pkl"
+        }
+    }
+}

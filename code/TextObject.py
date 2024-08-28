@@ -10,7 +10,7 @@ class TextObject:
         self.lemmas = []
         self.dep = []
         self.vectors = []
-        self.annotations = {}
+        self.annotations = []
         self.token_offsets = []
         self.text = ""
 
@@ -28,14 +28,17 @@ class TextObject:
 
     def serialize(self, filename):
         with open(filename, 'w') as f:
+            annotations = {}
+            for anno in self.annotations:
+                annotations[anno.type] = anno.serialize()
             save_dict = {
                 'text': self.text,
                 'tokens': self.tokens,
                 'pos': self.pos,
                 'lemmas': self.lemmas,
                 'dep': self.dep,
-                'annotations': self.annotations,
                 'token_offsets': self.token_offsets,
+                'annotations': annotations
             }
             with open(filename, 'w') as f:
                 json.dump(save_dict, f, indent=4)

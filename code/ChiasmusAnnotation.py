@@ -13,12 +13,16 @@ class ChiasmusAnnotation:
     """
     def __init__(self, text : TextObject, window_size=30):
         self.text = text
+        text.annotations.append(self)
         self.window_size = window_size
         self.candidates = []
-        self.blacklist = []
-        self.whitelist = []
+        self.denylist = []
+        self.allowlist = []
         self.neglist = []
         self.poslist = []
+        self.conjlist = []
+        self.type = "chiasmus"
+        self.model = None
 
 
     """
@@ -30,7 +34,7 @@ class ChiasmusAnnotation:
 
         outer_matches = []
         for i in range(len(pos)):
-            outer_matches = self._find_matches(i, i + self.window_size)
+            outer_matches += self._find_matches(i, i + self.window_size)
 
         for match in outer_matches:
             A, A_ = match
@@ -38,6 +42,26 @@ class ChiasmusAnnotation:
             inner_matches = self._find_matches(start_inner, A_)
             for B, B_ in inner_matches:
                 self.candidates.append(ChiasmusCandidate(A, B, B_, A_))
+
+    def load_classification_model(self, model_path):
+        import pickle
+        with open(model_path, "rb") as f:
+            self.model = pickle.load(f)
+
+    def serialize(self) -> list:
+        candidates = []
+        for c in self.candidates:
+            candidates.append({
+        "ids": c.ids,
+        "A": c.A,
+        "B": c.B,
+        "B_": c.B_,
+        "A_": c.A_,
+        "score": c.score})
+        return candidates
+
+        
+        
     
     """
     This method finds matches in the pos list of the text.
@@ -49,29 +73,32 @@ class ChiasmusAnnotation:
     def _find_matches(self, start : int, end : int) -> list:
         pos = self.text.pos
 
-        if end > len(pos):
-            end = len(pos)
+        #if end > len(pos):
+        #    end = len(pos)
 
-        if end < start+3:
-            return []
+        #if end < start+3:
+        #    return []
 
         if not self._check_pos(pos[start]):
             return []
         matches = []
-        for i in range(start, end):
-            if pos[start] == pos[i]:
-                matches.append((start, i))
+        for i in range(start+1, end):
+            try:
+                if pos[start] == pos[i]:
+                    matches.append((start, i))
+            except IndexError:
+                pass
         return matches
 
     """
-    This method checks if a pos is in the whitelist or not in the blacklist.
+    This method checks if a pos is in the allowlist or not in the denylist.
     @param pos: str pos to check
-    @return bool True if pos is in whitelist or not in blacklist, False otherwise
+    @return bool True if pos is in allowlist or not in denylist, False otherwise
     """
     def _check_pos(self, pos):
-        if len(self.whitelist) > 0 and pos not in self.whitelist:
+        if len(self.allowlist) > 0 and pos not in self.allowlist:
             return False
-        if len(self.blacklist) > 0 and pos in self.blacklist:
+        if len(self.denylist) > 0 and pos in self.denylist:
             return False
         return True
 
@@ -86,33 +113,31 @@ class ChiasmusAnnotation:
     This method scores the chiasmus candidates.
     """
     def score_candidates(self):
+        features = []
         for candidate in self.candidates:
-            self.score_candidate(candidate)
+            features.append(self.get_features(candidate))
+        if self.model is None:
+            print("Load Chiasmus Model before scoring the candidates")
+            return False
+        features = np.stack(features)
+        scores = self.model.decision_function(features)
+        for score, candidate in zip(scores, self.candidates):
+            candidate.score = score
+        return True
 
     """
     This method ranks a chiasmus candidate.
     @param candidate: ChiasmusCandidate candidate to rank
     """
     def score_candidate(self, candidate):
-        print("Not implemented yet")
-        tokens = self.text.tokens
-        lemmas = self.text.lemmas
-        pos = self.text.pos
-        dep = self.text.dep
-        vectors = self.text.vectors
 
-        context_start = candidate.A - 5
-        context_end = candidate.A_ + 5
-
-        tokens_main = [tokens[i] for i in range(candidate.A, candidate.A_+1)]
-        lemmas_main = [lemmas[i] for i in range(candidate.A, candidate.A_+1)]
-        pos_main = [pos[i] for i in range(candidate.A, candidate.A_+1)]
-        dep_main = [dep[i] for i in range(candidate.A, candidate.A_+1)]
-        vectors_main = [vectors[i] for i in range(candidate.A, candidate.A_+1)]
-
+        features = get_features(candidate)
 
     def get_features(self, candidate):
-        pass
+        dubremetz_features = self.get_dubremetz_features(candidate)
+        lexical_features = self.get_lexical_features(candidate)
+        semantic_features = self.get_semantic_features(candidate)
+        return np.concatenate((dubremetz_features, lexical_features, semantic_features))
 
     def get_dubremetz_features(self, candidate):
 
@@ -133,6 +158,7 @@ class ChiasmusAnnotation:
 
         neglist = self.neglist
         poslist = self.poslist
+        conjlist = self.conjlist
 
         hardp_list = ['.', '(', ')', "[", "]"] 
         softp_list = [',', ';']
@@ -143,8 +169,8 @@ class ChiasmusAnnotation:
 
         num_punct = 0
         for h in hardp_list:
-            if h in tokens[ candidate.ids.ids[0]+1 : candidate.ids[1] ]: num_punct+=1
-            if h in tokens[ candidate.ids.ids[2]+1 : candidate.ids[3] ]: num_punct+=1
+            if h in tokens[ candidate.ids[0]+1 : candidate.ids[1] ]: num_punct+=1
+            if h in tokens[ candidate.ids[2]+1 : candidate.ids[3] ]: num_punct+=1
         features.append(num_punct)
 
         num_punct = 0
@@ -293,19 +319,17 @@ class ChiasmusAnnotation:
         context_start = candidate.A - 5
         context_end = candidate.A_ + 5
 
-        tokens_main = [tokens[i] for i in range(candidate.A, candidate.A_+1)]
-        lemmas_main = [lemmas[i] for i in range(candidate.A, candidate.A_+1)]
-        pos_main = [pos[i] for i in range(candidate.A, candidate.A_+1)]
-        dep_main = [dep[i] for i in range(candidate.A, candidate.A_+1)]
-        vectors_main = [vectors[i] for i in range(candidate.A, candidate.A_+1)]
+        lemmas_main = [lemmas[i] for i in candidate.ids]
+
 
         neglist = self.neglist
         poslist = self.poslist
 
         features = []
+
         
-        for i in range(len(tokens_main)):
-            for j in range(i+1, len(tokens_main)):
+        for i in range(len(lemmas_main)):
+            for j in range(i+1, len(lemmas_main)):
                 if lemmas_main[i] == lemmas_main[j]:
                     features.append(1)
                 else:
@@ -324,11 +348,7 @@ class ChiasmusAnnotation:
         context_start = candidate.A - 5
         context_end = candidate.A_ + 5
 
-        tokens_main = [tokens[i] for i in range(candidate.A, candidate.A_+1)]
-        lemmas_main = [lemmas[i] for i in range(candidate.A, candidate.A_+1)]
-        pos_main = [pos[i] for i in range(candidate.A, candidate.A_+1)]
-        dep_main = [dep[i] for i in range(candidate.A, candidate.A_+1)]
-        vectors_main = [vectors[i] for i in range(candidate.A, candidate.A_+1)]
+        vectors_main = [vectors[i] for i in candidate.ids]
 
 
         features = []
@@ -342,7 +362,10 @@ class ChiasmusAnnotation:
 
 
 def cosine_similarity(vec1, vec2):
-    return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
+    result = np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
+    if np.isnan(result):
+        result = 0
+    return result
 
 
 class ChiasmusCandidate:
@@ -356,4 +379,5 @@ class ChiasmusCandidate:
 
     def __str__(self):
         return f"{self.A} {self.B} {self.B_} {self.A_}"
+
 
