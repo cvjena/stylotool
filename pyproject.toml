@@ -1,0 +1,17 @@
+[project]
+name = "stylotool"
+version = "0.0.1"
+authors = [
+    { name = "Felix Schneider", email = "felix.schneider@uni-jena.de"},
+]
+description = "A tool for stylistic device detection"
+readme = "README.md"
+requires-python = ">=3.6"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    ]
+
+[project.urls]
+Homepage = "https://github.com/cvjena/stylotool"
+Issues = "https://github.com/cvjena/stylotool/issues"
