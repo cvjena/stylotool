@@ -2,7 +2,7 @@ import pickle
 import json
 
 class TextObject:
-    def __init__(self, textfile=None, language=''):
+    def __init__(self, textfile=None, text=None, language=''):
         self.textfile = textfile
         self.language = language
         self.tokens = []
@@ -14,6 +14,13 @@ class TextObject:
         self.token_offsets = []
         self.text = ""
 
+        if textfile is not None and text is not None:
+            print("ERROR: Cannot create TextObject with both text and textfile")
+            exit(1)
+
+        if textfile is None and text is None:
+            print("ERROR: Cannot create TextObject without text or textfile")
+            exit(1)
 
         if textfile is not None:
             try:
@@ -21,6 +28,8 @@ class TextObject:
                     self.text = f.read()
             except FileNotFoundError:
                 print("File not found, no textfile loaded")
+        elif text is not None:
+            self.text = text
 
     def save_as(self, filename):
         with open(filename, 'wb') as f:
