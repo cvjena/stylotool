@@ -36,4 +36,4 @@ jobs:
       uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
       with:
         user: sart0r
-        password: pypi-AgENdGVzdC5weXBpLm9yZwIkZTYxNDRjNjAtNTk1NS00MjBkLThjODYtMDVhMThjOTg4ZDI5AAIqWzMsIjNmNTM3ZjQ4LWZlY2ItNDdjZC1hZjk0LWMwMmYxMDFlYTQwNyJdAAAGICtP_1tnFohhm7fMh9nL0Xi_garOHKYj8ABvPZ0_PGq6
+        password: ${{ secrets.GITHUB_TOKEN }}
