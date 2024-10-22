@@ -6,6 +6,9 @@
             "allowlist": ["NOUN", "VERB", "ADJ", "ADV"],
             "denylist": [],
             "model": "../models/chiasmus_de.pkl"
+        },
+        "metaphor":{
+            "model": "models/metaphor_de.pkl"
         }
     }
 }

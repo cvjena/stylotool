@@ -20,6 +20,10 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/stylotool
+
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python
