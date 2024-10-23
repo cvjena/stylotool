@@ -1,4 +1,4 @@
-# STYLOTOOL - an easy-to-use stylistic device detection tool for stylometry
+# FreeStylo - an easy-to-use stylistic device detection tool for stylometry
 
 An easy-to-use package for detecting stylistic devices in text. This package is designed to be used in stylometry, the study of linguistic style.
 
@@ -7,7 +7,9 @@ For an example on usage, see `example_chiasmus.sh` and the config file `example_
 
 # Installation
 The package is available on PyPi and can be installed using pip.
-TODO: add installation instructions
+```
+piop install freestylo
+```
 
 # Participation
 The package is free and open-source software and contributions are very welcome.

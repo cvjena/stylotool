@@ -1,7 +1,7 @@
 import numpy as np
-import stylotool.TextObject as to
-import stylotool.TextPreprocessor as tp
-import stylotool.AlliterationAnnotation as aa
+import freestylo.TextObject as to
+import freestylo.TextPreprocessor as tp
+import freestylo.AlliterationAnnotation as aa
 
 
 def test_alliteration_annotation():

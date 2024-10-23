@@ -1,6 +1,6 @@
-import stylotool.TextObject as to
-import stylotool.MetaphorAnnotation as ma
-import stylotool.TextPreprocessor as tp
+import freestylo.TextObject as to
+import freestylo.MetaphorAnnotation as ma
+import freestylo.TextPreprocessor as tp
 import numpy as np
 import os
 
@@ -16,7 +16,7 @@ def test_metaphor_annotation():
     metaphor = ma.MetaphorAnnotation(
             text=text)
     metaphor.find_candidates()
-    metaphor.load_model(os.path.expanduser("~/.stylotool/models/metaphor_de.torch"))
+    metaphor.load_model(os.path.expanduser("~/.freestylo/models/metaphor_de.torch"))
     metaphor.score_candidates()
     results = metaphor.candidates
 

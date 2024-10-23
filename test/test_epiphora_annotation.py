@@ -1,6 +1,6 @@
-import stylotool.TextObject as to
-import stylotool.EpiphoraAnnotation as ea
-import stylotool.TextPreprocessor as tp
+import freestylo.TextObject as to
+import freestylo.EpiphoraAnnotation as ea
+import freestylo.TextPreprocessor as tp
 import numpy as np
 
 

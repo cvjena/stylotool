@@ -1,5 +1,5 @@
 [project]
-name = "stylotool"
+name = "freestylo"
 version = "0.0.1"
 authors = [
     { name = "Felix Schneider", email = "felix.schneider@uni-jena.de"},
@@ -14,8 +14,8 @@ classifiers = [
     ]
 
 [project.urls]
-Homepage = "https://github.com/cvjena/stylotool"
-Issues = "https://github.com/cvjena/stylotool/issues"
+Homepage = "https://github.com/cvjena/freestylo"
+Issues = "https://github.com/cvjena/freestylo/issues"
 
 [build-system]
 requires = [
@@ -26,7 +26,8 @@ requires = [
     "pytest",
     "scikit-learn",
     "scipy",
-    "cltk<1.0"
+    "cltk<1.0",
+    "wget"
 
     ]
 build-backend = "setuptools.build_meta" 

@@ -1,6 +1,6 @@
 import spacy
-from stylotool.TextObject import TextObject
-from stylotool.MGHPreprocessor import MGHPreprocessor
+from freestylo.TextObject import TextObject
+from freestylo.MGHPreprocessor import MGHPreprocessor
 
 """
 This class is used to preprocess text.

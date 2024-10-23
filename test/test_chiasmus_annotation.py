@@ -1,6 +1,6 @@
-import stylotool.ChiasmusAnnotation as ca
-import stylotool.TextObject as to
-import stylotool.TextPreprocessor as tp
+import freestylo.ChiasmusAnnotation as ca
+import freestylo.TextObject as to
+import freestylo.TextPreprocessor as tp
 import numpy as np
 import os
 
@@ -18,7 +18,7 @@ Das ist noch ein Satz mit einem schönen Adjektiv.""",
             text=text)
     chiasmus.allowlist = ["NOUN", "VERB", "ADJ", "ADV"]
     chiasmus.find_candidates()
-    chiasmus.load_classification_model(os.path.expanduser("~/.stylotool/models/chiasmus_de.pkl"))
+    chiasmus.load_classification_model(os.path.expanduser("chiasmus_de.pkl"))
     chiasmus.score_candidates()
 
     scores = [c.score for c in chiasmus.candidates]

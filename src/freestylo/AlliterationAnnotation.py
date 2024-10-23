@@ -1,4 +1,4 @@
-from stylotool.TextObject import TextObject
+from freestylo.TextObject import TextObject
 
 """
 This class is used to find alliterations candidates in a text.

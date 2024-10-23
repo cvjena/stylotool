@@ -1,6 +1,6 @@
-import stylotool.TextObject as to
-import stylotool.PolysyndetonAnnotation as pa
-import stylotool.TextPreprocessor as tp
+import freestylo.TextObject as to
+import freestylo.PolysyndetonAnnotation as pa
+import freestylo.TextPreprocessor as tp
 import numpy as np
 
 

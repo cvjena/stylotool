@@ -1,7 +1,8 @@
 import numpy as np
 import torch
-import stylotool.SimilarityNN as SimilarityNN
-from stylotool.TextObject import TextObject
+import freestylo.SimilarityNN as SimilarityNN
+from freestylo.TextObject import TextObject
+from freestylo.Configs import get_model_path
 
 
 # TODO: automatically select cuda device
@@ -33,6 +34,7 @@ class MetaphorAnnotation:
 
 
     def load_model(self, model_path):
+        model_path = get_model_path(model_path)
         self.model = SimilarityNN.SimilarityNN(300, 128, 1, 128, self.device)
         self.model.load_state_dict(torch.load(model_path, weights_only=True))
         self.model = self.model.to(self.device)

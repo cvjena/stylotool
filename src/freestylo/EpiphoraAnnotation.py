@@ -1,5 +1,5 @@
 
-from stylotool.TextObject import TextObject
+from freestylo.TextObject import TextObject
 
 """
 this class is used to find polysyndeton candidates in a text.

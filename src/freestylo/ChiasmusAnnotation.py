@@ -1,4 +1,5 @@
-from stylotool.TextObject import TextObject
+from freestylo.TextObject import TextObject
+from freestylo.Configs import get_model_path
 import numpy as np
 
 """
@@ -45,7 +46,7 @@ class ChiasmusAnnotation:
 
     def load_classification_model(self, model_path):
         import pickle
-        with open(model_path, "rb") as f:
+        with open(get_model_path(model_path), "rb") as f:
             self.model = pickle.load(f)
 
     def serialize(self) -> list:

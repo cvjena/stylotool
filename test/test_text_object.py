@@ -1,6 +1,6 @@
-from stylotool.TextObject import TextObject
-from stylotool.TextPreprocessor import TextPreprocessor
-from stylotool.MGHPreprocessor import MGHPreprocessor
+from freestylo.TextObject import TextObject
+from freestylo.TextPreprocessor import TextPreprocessor
+from freestylo.MGHPreprocessor import MGHPreprocessor
 
 import os
 import json
