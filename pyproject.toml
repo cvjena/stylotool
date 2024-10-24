@@ -1,6 +1,6 @@
 [project]
 name = "freestylo"
-version = "0.0.1"
+version = "0.1.0"
 authors = [
     { name = "Felix Schneider", email = "felix.schneider@uni-jena.de"},
 ]
@@ -12,6 +12,9 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
     ]
+
+[project.scripts]
+freestylo = "freestylo:freestylo_main"
 
 [project.urls]
 Homepage = "https://github.com/cvjena/freestylo"
@@ -31,3 +34,4 @@ requires = [
 
     ]
 build-backend = "setuptools.build_meta" 
+
