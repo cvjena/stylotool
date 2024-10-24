@@ -49,6 +49,13 @@ jobs:
         pip install
         pytest
         --user
+    - name: Install locally the built distribution packages
+      run: >-
+        python3 -m
+        pip install
+        dist/*.tar.gz
+        dist/*.whl
+        --user
     - name: Run the tests
       run: python3 -m pytest
     
