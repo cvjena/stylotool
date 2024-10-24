@@ -1,12 +1,12 @@
 import argparse
 import json
-import ChiasmusAnnotation as ca
-import MetaphorAnnotation as ma
-import EpiphoraAnnotation as ea
-import PolysyndetonAnnotation as pa
-import AlliterationAnnotation as aa
-import TextObject as to
-import TextPreprocessor as tp
+import freestylo.ChiasmusAnnotation as ca
+import freestylo.MetaphorAnnotation as ma
+import freestylo.EpiphoraAnnotation as ea
+import freestylo.PolysyndetonAnnotation as pa
+import freestylo.AlliterationAnnotation as aa
+import freestylo.TextObject as to
+import freestylo.TextPreprocessor as tp
 
 def main():
     parser = argparse.ArgumentParser(description="Stylometric analysis tool")

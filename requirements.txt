@@ -1,0 +1,9 @@
+setuptools>=75.0
+torch
+spacy==3.8.2
+numpy
+pytest
+scikit-learn
+scipy
+cltk<1.0
+wget
