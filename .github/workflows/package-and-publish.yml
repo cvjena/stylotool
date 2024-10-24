@@ -1,4 +1,5 @@
-name: Publish to PyPI 🚀
+name: Publish Python 🐍 distribution 📦 to PyPI and TestPyPI
+
 on: push
 
 jobs:
@@ -11,8 +12,8 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.12"
-   - name: Install pypa/build
+        python-version: "3.x"
+    - name: Install pypa/build
       run: >-
         python3 -m
         pip install
@@ -25,6 +26,7 @@ jobs:
       with:
         name: python-package-distributions
         path: dist/
+
   publish-to-pypi:
     name: >-
       Publish Python 🐍 distribution 📦 to PyPI
@@ -37,6 +39,8 @@ jobs:
       url: https://pypi.org/p/<package-name>  # Replace <package-name> with your PyPI project name
     permissions:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
+
+    steps:
     - name: Download all the dists
       uses: actions/download-artifact@v4
       with:
@@ -44,6 +48,7 @@ jobs:
         path: dist/
     - name: Publish distribution 📦 to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
+
   github-release:
     name: >-
       Sign the Python 🐍 distribution 📦 with Sigstore
